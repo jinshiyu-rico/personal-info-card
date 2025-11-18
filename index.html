@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人信息展示卡</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        // Tailwind 配置
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                        neutral: '#64748B',
+                        light: '#F8FAFC',
+                        dark: '#1E293B'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02)',
+                        'card-hover': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .transition-all-300 {
+                transition: all 300ms ease-in-out;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- 标题区域 -->
+        <header class="text-center mb-8">
+            <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-dark mb-2 text-shadow">
+                个人信息展示卡
+            </h1>
+            <p class="text-neutral">填写您的个人信息，生成专属展示卡片</p>
+        </header>
+
+        <!-- 主内容区 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- 表单区域 -->
+            <div class="bg-white rounded-xl shadow-card p-6 md:p-8 transition-all-300 hover:shadow-card-hover">
+                <h2 class="text-xl font-semibold text-dark mb-6 flex items-center">
+                    <i class="fa fa-pencil-square-o text-primary mr-2"></i> 填写个人信息
+                </h2>
+                
+                <form id="infoForm" class="space-y-6">
+                    <!-- 昵称 -->
+                    <div>
+                        <label for="nickname" class="block text-sm font-medium text-neutral mb-1">昵称</label>
+                        <input type="text" id="nickname" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all-300" placeholder="输入您的昵称">
+                    </div>
+
+                    <!-- 专业信息 -->
+                    <div>
+                        <label for="major" class="block text-sm font-medium text-neutral mb-1">专业信息</label>
+                        <input type="text" id="major" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all-300" placeholder="输入您的专业或职业">
+                    </div>
+
+                    <!-- 擅长技能 -->
+                    <div>
+                        <label for="skills" class="block text-sm font-medium text-neutral mb-1">擅长技能</label>
+                        <textarea id="skills" rows="3" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all-300" placeholder="输入您的擅长技能，多个技能用逗号分隔"></textarea>
+                    </div>
+
+                    <!-- 荣誉奖项 -->
+                    <div>
+                        <label for="awards" class="block text-sm font-medium text-neutral mb-1">荣誉奖项</label>
+                        <textarea id="awards" rows="3" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all-300" placeholder="输入您获得的荣誉奖项，多个奖项用换行分隔"></textarea>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button type="button" id="resetBtn" class="px-6 py-2 bg-gray-100 text-neutral rounded-lg hover:bg-gray-200 transition-all-300 flex items-center">
+                            <i class="fa fa-refresh mr-1"></i> 重置
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all-300 flex items-center ml-auto">
+                            <i class="fa fa-check mr-1"></i> 应用信息
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 预览区域 -->
+            <div class="flex items-center justify-center">
+                <div class="w-full max-w-md">
+                    <div id="previewCard" class="bg-white rounded-2xl shadow-card overflow-hidden transition-all-300 hover:shadow-card-hover transform hover:-translate-y-1">
+                        <!-- 卡片头部 -->
+                        <div class="bg-gradient-to-r from-primary to-primary/80 p-8 text-white text-center relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-full opacity-10">
+                                <i class="fa fa-user-circle text-[200px] absolute -top-10 -right-10"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <div class="w-24 h-24 bg-white/20 rounded-full mx-auto mb-4 flex items-center justify-center backdrop-blur-sm">
+                                    <i class="fa fa-user text-4xl text-white"></i>
+                                </div>
+                                <h2 id="previewNickname" class="text-2xl font-bold mb-1">匿名用户</h2>
+                                <p id="previewMajor" class="opacity-90 text-sm">未填写专业信息</p>
+                            </div>
+                        </div>
+
+                        <!-- 卡片内容 -->
+                        <div class="p-6 space-y-6">
+                            <!-- 技能标签 -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-neutral uppercase tracking-wider mb-3 flex items-center">
+                                    <i class="fa fa-star text-accent mr-2"></i> 擅长技能
+                                </h3>
+                                <div id="previewSkills" class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 bg-gray-100 text-neutral text-sm rounded-full">未添加技能</span>
+                                </div>
+                            </div>
+
+                            <!-- 荣誉奖项 -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-neutral uppercase tracking-wider mb-3 flex items-center">
+                                    <i class="fa fa-trophy text-accent mr-2"></i> 荣誉奖项
+                                </h3>
+                                <div id="previewAwards" class="space-y-2">
+                                    <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                                        <i class="fa fa-certificate text-neutral mt-0.5 mr-3"></i>
+                                        <p class="text-neutral text-sm">未添加荣誉奖项</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 卡片底部 -->
+                        <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
+                            <p class="text-xs text-neutral">个人信息展示卡 · 实时预览</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="mt-12 text-center text-sm text-neutral">
+            <p>© 2025 个人信息展示工具 | 设计与开发</p>
+        </footer>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const form = document.getElementById('infoForm');
+        const resetBtn = document.getElementById('resetBtn');
+        const nicknameInput = document.getElementById('nickname');
+        const majorInput = document.getElementById('major');
+        const skillsInput = document.getElementById('skills');
+        const awardsInput = document.getElementById('awards');
+
+        // 预览区域元素
+        const previewNickname = document.getElementById('previewNickname');
+        const previewMajor = document.getElementById('previewMajor');
+        const previewSkills = document.getElementById('previewSkills');
+        const previewAwards = document.getElementById('previewAwards');
+
+        // 初始化预览
+        function updatePreview() {
+            // 更新昵称
+            const nickname = nicknameInput.value.trim() || '匿名用户';
+            previewNickname.textContent = nickname;
+
+            // 更新专业信息
+            const major = majorInput.value.trim() || '未填写专业信息';
+            previewMajor.textContent = major;
+
+            // 更新技能标签
+            const skills = skillsInput.value.trim() 
+                ? skillsInput.value.split(',').map(skill => skill.trim()).filter(skill => skill)
+                : [];
+            
+            previewSkills.innerHTML = '';
+            if (skills.length > 0) {
+                skills.forEach(skill => {
+                    const skillElement = document.createElement('span');
+                    skillElement.className = 'px-3 py-1 bg-primary/10 text-primary text-sm rounded-full transition-all-300 hover:bg-primary/20';
+                    skillElement.textContent = skill;
+                    previewSkills.appendChild(skillElement);
+                });
+            } else {
+                const defaultSkill = document.createElement('span');
+                defaultSkill.className = 'px-3 py-1 bg-gray-100 text-neutral text-sm rounded-full';
+                defaultSkill.textContent = '未添加技能';
+                previewSkills.appendChild(defaultSkill);
+            }
+
+            // 更新荣誉奖项
+            const awards = awardsInput.value.trim()
+                ? awardsInput.value.split('\n').map(award => award.trim()).filter(award => award)
+                : [];
+            
+            previewAwards.innerHTML = '';
+            if (awards.length > 0) {
+                awards.forEach((award, index) => {
+                    const awardElement = document.createElement('div');
+                    awardElement.className = 'flex items-start p-3 bg-gray-50 rounded-lg transition-all-300 hover:bg-gray-100';
+                    awardElement.innerHTML = `
+                        <i class="fa fa-certificate text-accent mt-0.5 mr-3"></i>
+                        <p class="text-neutral text-sm">${award}</p>
+                    `;
+                    previewAwards.appendChild(awardElement);
+                });
+            } else {
+                const defaultAward = document.createElement('div');
+                defaultAward.className = 'flex items-start p-3 bg-gray-50 rounded-lg';
+                defaultAward.innerHTML = `
+                    <i class="fa fa-certificate text-neutral mt-0.5 mr-3"></i>
+                    <p class="text-neutral text-sm">未添加荣誉奖项</p>
+                `;
+                previewAwards.appendChild(defaultAward);
+            }
+
+            // 添加卡片动画效果
+            const previewCard = document.getElementById('previewCard');
+            previewCard.classList.add('scale-102');
+            setTimeout(() => {
+                previewCard.classList.remove('scale-102');
+            }, 300);
+        }
+
+        // 表单提交事件
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            updatePreview();
+        });
+
+        // 重置按钮事件
+        resetBtn.addEventListener('click', () => {
+            form.reset();
+            updatePreview();
+        });
+
+        // 实时预览（输入时）
+        [nicknameInput, majorInput, skillsInput, awardsInput].forEach(input => {
+            input.addEventListener('input', updatePreview);
+        });
+
+        // 初始化
+        updatePreview();
+
+        // 添加页面载入动画
+        document.addEventListener('DOMContentLoaded', () => {
+            const containers = document.querySelectorAll('.container > div');
+            containers.forEach((container, index) => {
+                container.style.opacity = '0';
+                container.style.transform = 'translateY(20px)';
+                container.style.transition = 'all 500ms ease-out';
+                
+                setTimeout(() => {
+                    container.style.opacity = '1';
+                    container.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        });
+    </script>
+</body>
+</html>
